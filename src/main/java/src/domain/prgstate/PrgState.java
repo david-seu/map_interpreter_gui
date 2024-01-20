@@ -14,17 +14,20 @@ public class PrgState {
     private final MyIDictionary<StringValue, BufferedReader> fileTable;
     private final MyIDictionary<Integer,Value> heap;
 
+    private final MyIDictionary<Integer,Integer> lockTable;
+
     private final Integer id;
 
     private static Integer nrPrgStates = 0;
     private IStmt originalProgram; //optional field, but good to have
 
-    public PrgState(MyIStack<IStmt> stk, MyIDictionary<String, Value> symTable, MyIList<Value> out, MyIDictionary<StringValue,BufferedReader> fileTable, MyIDictionary<Integer,Value> heap, IStmt prg){
+    public PrgState(MyIStack<IStmt> stk, MyIDictionary<String, Value> symTable, MyIList<Value> out, MyIDictionary<StringValue,BufferedReader> fileTable, MyIDictionary<Integer,Value> heap, MyIDictionary<Integer, Integer> lockTable, IStmt prg){
         this.stk = stk;
         this.symTable = symTable;
         this.out = out;
         this.fileTable = fileTable;
         this.heap = heap;
+        this.lockTable = lockTable;
         this.originalProgram = prg;
         this.id = getNewId();
         stk.push(prg);
@@ -53,6 +56,10 @@ public class PrgState {
 
     public MyIDictionary<Integer,Value> getHeap(){
         return this.heap;
+    }
+
+    public MyIDictionary<Integer, Integer> getLockTable() {
+        return lockTable;
     }
 
     public IStmt getOriginalProgram() {

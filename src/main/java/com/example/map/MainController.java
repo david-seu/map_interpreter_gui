@@ -59,6 +59,17 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symValueColumn;
 
     @FXML
+    private TableView<Pair<Integer,Integer>> lockTable;
+
+    @FXML
+    private TableColumn<Pair<Integer,Integer>, Integer> lockLocationColumn;
+
+    @FXML
+    private TableColumn<Pair<Integer,Integer>, Integer> lockValueColumn;
+
+
+
+    @FXML
     private TextField numberOfProgramStates;
 
     @FXML
@@ -70,6 +81,8 @@ public class MainController {
         valueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
         symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
+        lockLocationColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
+        lockValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second).asObject());
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -115,6 +128,19 @@ public class MainController {
         populateOutput();
         populateSymbolTable();
         populateExecutionStack();
+        populateLockTable();
+    }
+
+    private void populateLockTable() {
+        MyIDictionary<Integer, Integer> lockTable;
+        if (!controller.getPrgStates().isEmpty())
+            lockTable = controller.getPrgStates().get(0).getLockTable();
+        else lockTable = new MyLockTable();
+        List<Pair<Integer,Integer>> lockTableList = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : lockTable.getContent().entrySet())
+            lockTableList.add(new Pair<>(entry.getKey(), entry.getValue()));
+        this.lockTable.setItems(FXCollections.observableList(lockTableList));
+        this.lockTable.refresh();
     }
 
     private void populateHeap() {
@@ -132,7 +158,7 @@ public class MainController {
     private void populateProgramStateIdentifiers() {
         List<PrgState> programStates = controller.getPrgStates();
         List<Integer> idList = new ArrayList<>();
-        if (!(programStates.size() == 1 && !programStates.get(0).isNotCompleted())) {
+        if (!(programStates.stream().filter(p -> !p.isNotCompleted()).toList().size() == programStates.size())) {
             idList = programStates.stream().map(PrgState::getId).collect(Collectors.toList());
         }
         programStateList.setItems(FXCollections.observableList(idList));

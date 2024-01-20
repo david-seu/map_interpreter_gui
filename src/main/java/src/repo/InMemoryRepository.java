@@ -85,6 +85,12 @@ public class InMemoryRepository implements IRepository{
                 logFile.println(key);
             }
             logFile.println("------------------------------------------------------------");
+            logFile.println("LockTable");
+            MyIDictionary<Integer, Integer> lockTable = prgList.get(0).getLockTable();
+            for(Integer key : lockTable.getKeys()) {
+                logFile.println(key + "-->" + lockTable.lookup(key));
+            }
+            logFile.println("------------------------------------------------------------");
             logFile.println("Out");
             MyIList<Value> out = prgList.get(0).getOut();
             for(Value v : out.getValues()) {

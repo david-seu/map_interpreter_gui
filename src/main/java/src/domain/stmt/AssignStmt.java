@@ -10,6 +10,7 @@ import src.domain.value.Value;
 
 public class AssignStmt implements IStmt {
     private final String id;
+
     private final Exp exp;
 
     public AssignStmt(String id, Exp exp){
@@ -53,4 +54,14 @@ public class AssignStmt implements IStmt {
             throw new MyException("Assignment: right hand side and left hand side have different types");
         }
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public Exp getExp() {
+        return exp;
+    }
+
+
 }

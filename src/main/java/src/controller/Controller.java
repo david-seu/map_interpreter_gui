@@ -25,7 +25,7 @@ public class Controller {
     public Controller(IRepository r) {repo=r;}
 
     public Vector<PrgState> removeCompletedPrg(Vector<PrgState> inPrgList) {
-        if(inPrgList.size() == 1 && !inPrgList.get(0).isNotCompleted())
+        if(inPrgList.stream().filter(p -> !p.isNotCompleted()).toList().size() == inPrgList.size())
             return inPrgList;
         return inPrgList.stream().filter(PrgState::isNotCompleted).collect(Collectors.toCollection(Vector::new));
     }
@@ -61,7 +61,10 @@ public class Controller {
                 repo.logPrgStateExec(prg);
         }
         repo.logAllPrgStateExec();
-
+        if (prgList.get(0).toString().equals("print(rH(a))"))
+        {
+            System.out.println("ok");
+        }
         repo.setPrgList(prgList);
 
     }

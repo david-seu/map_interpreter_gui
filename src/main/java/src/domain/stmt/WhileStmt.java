@@ -34,7 +34,7 @@ public class WhileStmt implements IStmt{
 
     @Override
     public String toString(){
-        return "(while(" + exp.toString() + ") " + stmt.toString() + ")";
+        return "(while" + exp.toString() + " " + stmt.toString() + ")";
     }
 
     @Override
