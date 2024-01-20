@@ -7,7 +7,10 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import src.controller.Controller;
+import src.domain.exception.DivisionByZeroException;
+import src.domain.exception.EmptyStackException;
 import src.domain.exception.MyException;
+import src.domain.exception.VariableNotDefinedException;
 import src.domain.prgstate.*;
 import src.domain.stmt.IStmt;
 import src.domain.value.StringValue;
@@ -99,9 +102,10 @@ public class MainController {
             try {
                 controller.oneStepAll();
                 populate();
-            } catch (MyException | InterruptedException e) {
+            } catch (RuntimeException | InterruptedException | MyException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
                 alert.showAndWait();
+                controller = null;
             }
         });
         programStateList.setOnMouseClicked(mouseEvent -> populate());

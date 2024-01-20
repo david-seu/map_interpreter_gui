@@ -9,7 +9,10 @@ public class IntValue implements Value{
 
     @Override
     public boolean equals(Object another) {
-        return another instanceof IntValue;
+        if(another instanceof IntValue)
+            return (int) ((IntValue) another).getVal() == val;
+        else
+            return false;
     }
 
     public Object getVal(){

@@ -37,9 +37,8 @@ public class CountDownStmt implements IStmt {
         if(state.getLatchTable().lookup(index) > 0)
         {
             state.getLatchTable().update(index, state.getLatchTable().lookup(index) - 1);
+            state.getOut().add(new IntValue(state.getId()));
         }
-
-        state.getOut().add(new IntValue(state.getId()));
         lock.unlock();
         return null;
     }

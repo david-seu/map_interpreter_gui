@@ -135,22 +135,10 @@ public class Utils {
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
 
-
-        //bool b; int c; b=true; c=b?100:200; print(c); c= (false)?100:200; print(c);
-        //make this into a CompStmt
-        IStmt ex12 = new CompStmt(new VarDeclStmt("b", new BoolType()),
-                new CompStmt(new VarDeclStmt("c", new IntType()),
-                        new CompStmt(new AssignStmt("b", new ValueExp(new BoolValue(true))),
-                                new CompStmt(new CondAssignStmt("c", new VarExp("b"), new ValueExp(new IntValue(100)), new ValueExp(new IntValue(200))),
-                                        new CompStmt(new PrintStmt(new VarExp("c")),
-                                                new CompStmt(new CondAssignStmt("c", new ValueExp(new BoolValue(false)), new ValueExp(new IntValue(100)), new ValueExp(new IntValue(200))),
-                                                        new PrintStmt(new VarExp("c"))))))));
-        prgList.add(ex12);
-
         //Ref int v1; Ref int v2; Ref int v3; int cnt;    new(v1,2);new(v2,3);new(v3,4);newLatch(cnt,rH(v2)); fork(wh(v1,rh(v1)*10));print(rh(v1));countDown(cnt);         fork(wh(v2,rh(v2)*10));print(rh(v2));countDown(cnt);              fork(wh(v3,rh(v3)*10));print(rh(v3));countDown(cnt)))); await(cnt); print(100); countDown(cnt);print(100)
         //make this into a CompStmt
 
-        IStmt ex13 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType())),
+        IStmt ex11 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType())),
                 new CompStmt(new VarDeclStmt("v2", new RefType(new IntType())),
                         new CompStmt(new VarDeclStmt("v3", new RefType(new IntType())),
                                 new CompStmt(new VarDeclStmt("cnt", new IntType()),
@@ -171,7 +159,23 @@ public class Utils {
                                                                                                         new CompStmt(new PrintStmt(new ValueExp(new IntValue(100))),
                                                                                                                 new CompStmt(new CountDownStmt("cnt"),
                                                                                                                         new PrintStmt(new ValueExp(new IntValue(100)))))))))))))))));
-        prgList.add(ex13);
+        prgList.add(ex11);
+
+        //v=0; (repeat (fork(print(v);v=v-1);v=v+1) until v==3); x=1;y=2;z=3;w=4; print(v*10)
+        // make this into a CompStmt
+
+        IStmt ex12 = new CompStmt(new VarDeclStmt("v", new IntType()),
+                new CompStmt(new AssignStmt("v", new ValueExp(new IntValue(0))),
+                        new CompStmt(new RepeatUntilStmt(new CompStmt(new ForkStmt(new CompStmt(new PrintStmt(new VarExp("v")),
+                                new AssignStmt("v", new ArithExp('-', new VarExp("v"), new ValueExp(new IntValue(1)))))),
+                                new AssignStmt("v", new ArithExp('+', new VarExp("v"), new ValueExp(new IntValue(1))))),
+                                new BooleanExp(new VarExp("v"), new ValueExp(new IntValue(3)), "==")),
+                                new CompStmt(new AssignStmt("x", new ValueExp(new IntValue(1))),
+                                        new CompStmt(new AssignStmt("y", new ValueExp(new IntValue(2))),
+                                                new CompStmt(new AssignStmt("z", new ValueExp(new IntValue(3))),
+                                                        new CompStmt(new AssignStmt("w", new ValueExp(new IntValue(4))),
+                                                                new PrintStmt(new ArithExp('*', new VarExp("v"), new ValueExp(new IntValue(10)))))))))));
+        prgList.add(ex12);
         return prgList;
 
     }

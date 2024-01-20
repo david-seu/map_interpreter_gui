@@ -1,0 +1,35 @@
+package src.domain.stmt;
+
+import src.domain.exception.MyException;
+import src.domain.exp.Exp;
+import src.domain.exp.LogicExp;
+import src.domain.prgstate.MyIDictionary;
+import src.domain.prgstate.PrgState;
+import src.domain.type.Type;
+
+public class RepeatUntilStmt implements IStmt{
+
+    private final IStmt stmt;
+    private final Exp cond;
+
+    public RepeatUntilStmt(IStmt stmt, Exp cond){
+        this.stmt = stmt;
+        this.cond = cond;
+    }
+
+    @Override
+    public PrgState execute(PrgState state) throws MyException {
+        state.getStack().push(new CompStmt(stmt, new WhileStmt(new LogicExp('!', cond, null), stmt)));
+        return null;
+    }
+
+    @Override
+    public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
+        return null;
+    }
+
+    @Override
+    public String toString(){
+        return "repeat (" + stmt.toString() + ") until " + cond.toString();
+    }
+}
