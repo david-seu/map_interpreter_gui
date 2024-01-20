@@ -88,7 +88,7 @@ public class InMemoryRepository implements IRepository{
             }
             logFile.println("------------------------------------------------------------");
             logFile.println("SemaphoreTable");
-            MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable = prgList.get(0).getSemaphoreTable();
+            MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> semaphoreTable = prgList.get(0).getSemaphoreTable();
             for(Integer key : semaphoreTable.getKeys()) {
                 logFile.println(key + "-->" + semaphoreTable.lookup(key));
             }

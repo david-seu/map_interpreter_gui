@@ -35,11 +35,11 @@ public class AcquireStmt implements IStmt {
         if(!state.getSemaphoreTable().isDefined(location))
             throw new MyException("Semaphore " + location + " not defined");
 
-        Pair<Integer, Pair<ArrayList<Integer>, Integer>> tuple = state.getSemaphoreTable().lookup(location);
-        int length = tuple.getValue().getKey().size();
-        if(tuple.getKey() - tuple.getValue().getValue() > length) {
-            if(!tuple.getValue().getKey().contains(state.getId()))
-                tuple.getValue().getKey().add(state.getId());
+        Pair<Integer, ArrayList<Integer>> tuple = state.getSemaphoreTable().lookup(location);
+        int length = tuple.getValue().size();
+        if(tuple.getKey() > length) {
+            if(!tuple.getValue().contains(state.getId()))
+                tuple.getValue().add(state.getId());
         }
         else {
             state.getStack().push(this);
@@ -50,7 +50,11 @@ public class AcquireStmt implements IStmt {
 
     @Override
     public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
-        return null;
+        Type typVar = typeEnv.lookup(var);
+        if(typVar.equals(new src.domain.type.IntType()))
+            return typeEnv;
+        else
+            throw new MyException("Variable " + var + " not of type int");
     }
 
     @Override

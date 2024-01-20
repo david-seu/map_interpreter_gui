@@ -35,15 +35,19 @@ public class ReleaseStmt implements IStmt {
         if(!state.getSemaphoreTable().isDefined(location))
             throw new MyException("Semaphore " + location + " not defined");
 
-        Pair<Integer, Pair<ArrayList<Integer>, Integer>> tuple = state.getSemaphoreTable().lookup(location);
-        tuple.getValue().getKey().remove(state.getId());
+        Pair<Integer, ArrayList<Integer>> tuple = state.getSemaphoreTable().lookup(location);
+        tuple.getValue().remove(state.getId());
         lock.unlock();
         return null;
     }
 
     @Override
     public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
-        return null;
+        Type typVar = typeEnv.lookup(var);
+        if(typVar.equals(new src.domain.type.IntType()))
+            return typeEnv;
+        else
+            throw new MyException("Variable " + var + " not of type int");
     }
 
     @Override

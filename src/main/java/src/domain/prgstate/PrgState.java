@@ -16,14 +16,14 @@ public class PrgState {
     private final MyIDictionary<StringValue, BufferedReader> fileTable;
     private final MyIDictionary<Integer,Value> heap;
 
-    private final MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>,Integer>>> semaphoreTable;
+    private final MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> semaphoreTable;
 
     private final Integer id;
 
     private static Integer nrPrgStates = 0;
     private IStmt originalProgram; //optional field, but good to have
 
-    public PrgState(MyIStack<IStmt> stk, MyIDictionary<String, Value> symTable, MyIList<Value> out, MyIDictionary<StringValue,BufferedReader> fileTable, MyIDictionary<Integer,Value> heap, MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable, IStmt prg){
+    public PrgState(MyIStack<IStmt> stk, MyIDictionary<String, Value> symTable, MyIList<Value> out, MyIDictionary<StringValue,BufferedReader> fileTable, MyIDictionary<Integer,Value> heap, MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> semaphoreTable, IStmt prg){
         this.stk = stk;
         this.symTable = symTable;
         this.out = out;
@@ -60,7 +60,7 @@ public class PrgState {
         return this.heap;
     }
 
-    public MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> getSemaphoreTable() {
+    public MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> getSemaphoreTable() {
         return semaphoreTable;
     }
 

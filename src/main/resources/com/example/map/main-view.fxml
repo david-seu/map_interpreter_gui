@@ -32,8 +32,8 @@
          <TableView fx:id="semaphoreTable" prefHeight="200.0" prefWidth="203.0">
            <columns>
              <TableColumn fx:id="semaphoreIndexColumn" prefWidth="75.0" text="Location" />
-             <TableColumn fx:id="semaphoreListColumn" prefWidth="75.0" text="List of IDs" />
                <TableColumn fx:id="semaphoreValueColumn" prefWidth="75.0" text="Count" />
+               <TableColumn fx:id="semaphoreListColumn" prefWidth="75.0" text="List of IDs" />
            </columns>
          </TableView>
     </VBox>

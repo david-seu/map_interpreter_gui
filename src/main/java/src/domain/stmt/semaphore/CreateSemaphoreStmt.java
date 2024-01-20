@@ -16,19 +16,15 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class NewSemaphoreStmt implements IStmt {
+public class CreateSemaphoreStmt implements IStmt {
     private final String var;
-    private final Exp exp1;
-
-    private final Exp exp2;
-
+    private final Exp exp;
     private static final Lock lock = new ReentrantLock();
 
 
-    public NewSemaphoreStmt(String var, Exp exp1, ValueExp exp2) {
+    public CreateSemaphoreStmt(String var, Exp exp) {
         this.var = var;
-        this.exp1 = exp1;
-        this.exp2 = exp2;
+        this.exp = exp;
     }
 
 
@@ -37,12 +33,11 @@ public class NewSemaphoreStmt implements IStmt {
         lock.lock();
         MyIDictionary<String, Value> symTable = state.getSymTable();
         MyIDictionary<Integer, Value> heap = state.getHeap();
-        IntValue number1 = (IntValue) exp1.eval(symTable, heap);
-        IntValue number2 = (IntValue) exp2.eval(symTable, heap);
+        IntValue number = (IntValue) exp.eval(symTable, heap);
 
         MySemaphore semaphore = (MySemaphore) state.getSemaphoreTable();
         Integer location = semaphore.getFreeAddress();
-        semaphore.add(location, new Pair<>((Integer) number1.getVal(), new Pair<>(new ArrayList<>(), (Integer) number2.getVal())));;
+        semaphore.add(location, new Pair<>((Integer) number.getVal(), new ArrayList<>()));
         if(symTable.isDefined(var))
             symTable.update(var, new IntValue(location));
         else
@@ -53,12 +48,17 @@ public class NewSemaphoreStmt implements IStmt {
 
     @Override
     public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
-        return null;
+        Type typVar = typeEnv.lookup(var);
+        Type typExp = exp.typeCheck(typeEnv);
+        if(typVar.equals(new src.domain.type.IntType()) && typExp.equals(new src.domain.type.IntType()))
+            return typeEnv;
+        else
+            throw new MyException("Variable " + var + " not of type int");
     }
 
 
     @Override
     public String toString() {
-        return "newSemaphore(" + var + ", " + exp1.toString() + ", " + exp2.toString() + ")";
+        return "newSemaphore(" + var + ", " + exp.toString() + ")";
     }
 }

@@ -24,7 +24,7 @@ public class ForkStmt implements IStmt{
         MyIDictionary<Integer, Value> heap = prg.getHeap();
         MyIDictionary<StringValue, BufferedReader> fileTable = prg.getFileTable();
         MyIList<Value> out = prg.getOut();
-        MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>,Integer>>> semaphoreTable = prg.getSemaphoreTable();
+        MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> semaphoreTable = prg.getSemaphoreTable();
         return new PrgState(stk, symTable, out, fileTable, heap, semaphoreTable, stmt);
     }
 

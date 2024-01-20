@@ -61,16 +61,16 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symValueColumn;
 
     @FXML
-    private TableView<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable;
+    private TableView<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> semaphoreTable;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreIndexColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> semaphoreIndexColumn;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, ArrayList<Integer>> semaphoreListColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, ArrayList<Integer>> semaphoreListColumn;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreValueColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> semaphoreValueColumn;
 
     @FXML
     private TextField numberOfProgramStates;
@@ -85,8 +85,9 @@ public class MainController {
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
         symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
         semaphoreIndexColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
-        semaphoreListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.first));
-        semaphoreValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second.second).asObject());
+        semaphoreListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.second));
+        semaphoreValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second.first).asObject());
+
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -201,11 +202,11 @@ public class MainController {
 
     private void populateSemaphoreTable() {
         PrgState state = getCurrentProgramState();
-        List<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTableList = new ArrayList<>();
+        List<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> semaphoreTableList = new ArrayList<>();
 
         if (state != null)
-            for (Map.Entry<Integer, javafx.util.Pair<Integer, javafx.util.Pair<ArrayList<Integer>, Integer>>> entry : state.getSemaphoreTable().getContent().entrySet())
-                semaphoreTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getValue().getKey(), entry.getValue().getValue().getValue())));
+            for (Map.Entry<Integer, javafx.util.Pair<Integer, ArrayList<Integer>>> entry : state.getSemaphoreTable().getContent().entrySet())
+                semaphoreTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getKey(),entry.getValue().getValue())));
 
         semaphoreTable.setItems(FXCollections.observableList(semaphoreTableList));
         semaphoreTable.refresh();
