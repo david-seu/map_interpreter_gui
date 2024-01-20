@@ -1,5 +1,6 @@
 package src.utils;
 
+import javafx.util.Pair;
 import src.domain.exception.MyException;
 import src.domain.exp.*;
 import src.domain.prgstate.*;
@@ -9,6 +10,9 @@ import src.domain.stmt.filestmt.OpenRFileStmt;
 import src.domain.stmt.filestmt.ReadFileStmt;
 import src.domain.stmt.heap.NewStmt;
 import src.domain.stmt.heap.wHStmt;
+import src.domain.stmt.semaphore.AcquireStmt;
+import src.domain.stmt.semaphore.NewSemaphoreStmt;
+import src.domain.stmt.semaphore.ReleaseStmt;
 import src.domain.type.*;
 import src.domain.value.BoolValue;
 import src.domain.value.IntValue;
@@ -16,6 +20,7 @@ import src.domain.value.StringValue;
 import src.domain.value.Value;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -33,7 +38,8 @@ public class Utils {
         MyIDictionary<Integer, Value> heap = new MyHeap();
         MyIList<Value> out1 = new MyList<>();
         MyIDictionary<StringValue, BufferedReader> fileTable1 = new MyDictionary<>();
-        return new PrgState(stk1, symTable1, out1, fileTable1, heap, stmt);
+        MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable = new MySemaphore();
+        return new PrgState(stk1, symTable1, out1, fileTable1, heap, semaphoreTable, stmt);
     }
 
     public static MyException typeChecker(IStmt stmt, Integer id) {
@@ -130,6 +136,37 @@ public class Utils {
                                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a"))))))),
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
+        IStmt ex11 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType()) ),
+                                    new CompStmt(new VarDeclStmt("cnt", new IntType()),
+                                            new CompStmt(new NewStmt("v1", new ValueExp(new IntValue(2))),
+                                                    new CompStmt(new NewSemaphoreStmt("cnt", new rHExp(new VarExp("v1")), new ValueExp(new IntValue(1))),
+                                                            new CompStmt(new ForkStmt(new CompStmt(new AcquireStmt("cnt"),
+                                                                    new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
+                                                                            new CompStmt(new PrintStmt(new rHExp(new VarExp("v1"))),
+                                                                                    new ReleaseStmt("cnt"))))),
+                                                                    new CompStmt(new ForkStmt(new CompStmt(new AcquireStmt("cnt"),
+                                                                            new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
+                                                                                    new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(2)))),
+                                                                                            new CompStmt(new PrintStmt(new rHExp(new VarExp("v1"))),
+                                                                                                    new ReleaseStmt("cnt")))))),
+                                                                            new CompStmt(new AcquireStmt("cnt"),
+                                                                                    new CompStmt(new PrintStmt(new ArithExp('-', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(1)))),
+                                                                                            new ReleaseStmt("cnt")))))))));
+        prgList.add(ex11);
+
+
+        //bool b; int c; b=true; c=b?100:200; print(c); c= (false)?100:200; print(c);
+        //make this into a CompStmt
+        IStmt ex12 = new CompStmt(new VarDeclStmt("b", new BoolType()),
+                new CompStmt(new VarDeclStmt("c", new IntType()),
+                        new CompStmt(new AssignStmt("b", new ValueExp(new BoolValue(true))),
+                                new CompStmt(new CondAssignStmt("c", new VarExp("b"), new ValueExp(new IntValue(100)), new ValueExp(new IntValue(200))),
+                                        new CompStmt(new PrintStmt(new VarExp("c")),
+                                                new CompStmt(new CondAssignStmt("c", new ValueExp(new BoolValue(false)), new ValueExp(new IntValue(100)), new ValueExp(new IntValue(200))),
+                                                        new PrintStmt(new VarExp("c"))))))));
+        prgList.add(ex12);
         return prgList;
+
+
     }
 }

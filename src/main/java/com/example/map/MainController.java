@@ -1,6 +1,7 @@
 package com.example.map;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -11,6 +12,7 @@ import src.domain.prgstate.*;
 import src.domain.stmt.IStmt;
 import src.domain.value.StringValue;
 import src.domain.value.Value;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,6 +61,18 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symValueColumn;
 
     @FXML
+    private TableView<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable;
+
+    @FXML
+    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreIndexColumn;
+
+    @FXML
+    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, ArrayList<Integer>> semaphoreListColumn;
+
+    @FXML
+    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreValueColumn;
+
+    @FXML
     private TextField numberOfProgramStates;
 
     @FXML
@@ -70,6 +84,9 @@ public class MainController {
         valueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
         symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
+        semaphoreIndexColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
+        semaphoreListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.first));
+        semaphoreValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second.second).asObject());
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -115,6 +132,7 @@ public class MainController {
         populateOutput();
         populateSymbolTable();
         populateExecutionStack();
+        populateSemaphoreTable();
     }
 
     private void populateHeap() {
@@ -179,5 +197,17 @@ public class MainController {
             }
         executionStackList.setItems(FXCollections.observableList(executionStackListAsString));
         executionStackList.refresh();
+    }
+
+    private void populateSemaphoreTable() {
+        PrgState state = getCurrentProgramState();
+        List<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTableList = new ArrayList<>();
+
+        if (state != null)
+            for (Map.Entry<Integer, javafx.util.Pair<Integer, javafx.util.Pair<ArrayList<Integer>, Integer>>> entry : state.getSemaphoreTable().getContent().entrySet())
+                semaphoreTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getValue().getKey(), entry.getValue().getValue().getValue())));
+
+        semaphoreTable.setItems(FXCollections.observableList(semaphoreTableList));
+        semaphoreTable.refresh();
     }
 }

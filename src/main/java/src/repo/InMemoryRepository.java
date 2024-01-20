@@ -1,5 +1,6 @@
 package src.repo;
 
+import javafx.util.Pair;
 import src.domain.exception.MyException;
 import src.domain.prgstate.MyIDictionary;
 import src.domain.prgstate.MyIList;
@@ -13,6 +14,7 @@ import src.utils.Utils;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -83,6 +85,12 @@ public class InMemoryRepository implements IRepository{
             MyIDictionary<StringValue, BufferedReader> fileTable = prgList.get(0).getFileTable();
             for(StringValue key : fileTable.getKeys()) {
                 logFile.println(key);
+            }
+            logFile.println("------------------------------------------------------------");
+            logFile.println("SemaphoreTable");
+            MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable = prgList.get(0).getSemaphoreTable();
+            for(Integer key : semaphoreTable.getKeys()) {
+                logFile.println(key + "-->" + semaphoreTable.lookup(key));
             }
             logFile.println("------------------------------------------------------------");
             logFile.println("Out");
