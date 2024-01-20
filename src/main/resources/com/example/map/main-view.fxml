@@ -28,12 +28,11 @@
     <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="418.0" prefWidth="230.0">
       <Label text="Output" />
       <ListView fx:id="outputList" prefHeight="218.0" prefWidth="227.0" />
-        <Label prefHeight="18.0" prefWidth="230.0" text="Semaphore table" />
-         <TableView fx:id="semaphoreTable" prefHeight="200.0" prefWidth="203.0">
+        <Label prefHeight="18.0" prefWidth="230.0" text="Latch Table" />
+         <TableView fx:id="latchTable" prefHeight="200.0" prefWidth="203.0">
            <columns>
-             <TableColumn fx:id="semaphoreIndexColumn" prefWidth="75.0" text="Location" />
-             <TableColumn fx:id="semaphoreListColumn" prefWidth="75.0" text="List of IDs" />
-               <TableColumn fx:id="semaphoreValueColumn" prefWidth="75.0" text="Count" />
+             <TableColumn fx:id="latchLocationColumn" prefWidth="115.19995272159576" text="Location" />
+             <TableColumn fx:id="latchValueColumn" prefWidth="112.00005340576172" text="Value" />
            </columns>
          </TableView>
     </VBox>

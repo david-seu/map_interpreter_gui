@@ -1,6 +1,5 @@
 package src.utils;
 
-import javafx.util.Pair;
 import src.domain.exception.MyException;
 import src.domain.exp.*;
 import src.domain.prgstate.*;
@@ -10,9 +9,9 @@ import src.domain.stmt.filestmt.OpenRFileStmt;
 import src.domain.stmt.filestmt.ReadFileStmt;
 import src.domain.stmt.heap.NewStmt;
 import src.domain.stmt.heap.wHStmt;
-import src.domain.stmt.semaphore.AcquireStmt;
-import src.domain.stmt.semaphore.NewSemaphoreStmt;
-import src.domain.stmt.semaphore.ReleaseStmt;
+import src.domain.stmt.latch_table.AwaitStmt;
+import src.domain.stmt.latch_table.CountDownStmt;
+import src.domain.stmt.latch_table.NewLatchStmt;
 import src.domain.type.*;
 import src.domain.value.BoolValue;
 import src.domain.value.IntValue;
@@ -20,7 +19,6 @@ import src.domain.value.StringValue;
 import src.domain.value.Value;
 
 import java.io.BufferedReader;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -38,8 +36,8 @@ public class Utils {
         MyIDictionary<Integer, Value> heap = new MyHeap();
         MyIList<Value> out1 = new MyList<>();
         MyIDictionary<StringValue, BufferedReader> fileTable1 = new MyDictionary<>();
-        MyIDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable = new MySemaphore();
-        return new PrgState(stk1, symTable1, out1, fileTable1, heap, semaphoreTable, stmt);
+        MyIDictionary<Integer,Integer> latchTable = new MyLatchTable();
+        return new PrgState(stk1, symTable1, out1, fileTable1, heap, latchTable, stmt);
     }
 
     public static MyException typeChecker(IStmt stmt, Integer id) {
@@ -136,23 +134,6 @@ public class Utils {
                                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a"))))))),
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
-        IStmt ex11 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType()) ),
-                                    new CompStmt(new VarDeclStmt("cnt", new IntType()),
-                                            new CompStmt(new NewStmt("v1", new ValueExp(new IntValue(2))),
-                                                    new CompStmt(new NewSemaphoreStmt("cnt", new rHExp(new VarExp("v1")), new ValueExp(new IntValue(1))),
-                                                            new CompStmt(new ForkStmt(new CompStmt(new AcquireStmt("cnt"),
-                                                                    new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
-                                                                            new CompStmt(new PrintStmt(new rHExp(new VarExp("v1"))),
-                                                                                    new ReleaseStmt("cnt"))))),
-                                                                    new CompStmt(new ForkStmt(new CompStmt(new AcquireStmt("cnt"),
-                                                                            new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
-                                                                                    new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(2)))),
-                                                                                            new CompStmt(new PrintStmt(new rHExp(new VarExp("v1"))),
-                                                                                                    new ReleaseStmt("cnt")))))),
-                                                                            new CompStmt(new AcquireStmt("cnt"),
-                                                                                    new CompStmt(new PrintStmt(new ArithExp('-', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(1)))),
-                                                                                            new ReleaseStmt("cnt")))))))));
-        prgList.add(ex11);
 
 
         //bool b; int c; b=true; c=b?100:200; print(c); c= (false)?100:200; print(c);
@@ -165,8 +146,33 @@ public class Utils {
                                                 new CompStmt(new CondAssignStmt("c", new ValueExp(new BoolValue(false)), new ValueExp(new IntValue(100)), new ValueExp(new IntValue(200))),
                                                         new PrintStmt(new VarExp("c"))))))));
         prgList.add(ex12);
-        return prgList;
 
+        //Ref int v1; Ref int v2; Ref int v3; int cnt;    new(v1,2);new(v2,3);new(v3,4);newLatch(cnt,rH(v2)); fork(wh(v1,rh(v1)*10));print(rh(v1));countDown(cnt);         fork(wh(v2,rh(v2)*10));print(rh(v2));countDown(cnt);              fork(wh(v3,rh(v3)*10));print(rh(v3));countDown(cnt)))); await(cnt); print(100); countDown(cnt);print(100)
+        //make this into a CompStmt
+
+        IStmt ex13 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType())),
+                new CompStmt(new VarDeclStmt("v2", new RefType(new IntType())),
+                        new CompStmt(new VarDeclStmt("v3", new RefType(new IntType())),
+                                new CompStmt(new VarDeclStmt("cnt", new IntType()),
+                                        new CompStmt(new NewStmt("v1", new ValueExp(new IntValue(2))),
+                                                new CompStmt(new NewStmt("v2", new ValueExp(new IntValue(3))),
+                                                        new CompStmt(new NewStmt("v3", new ValueExp(new IntValue(4))),
+                                                                new CompStmt(new NewLatchStmt("cnt", new rHExp(new VarExp("v2"))),
+                                                                        new CompStmt(new ForkStmt(new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
+                                                                                new CompStmt(new PrintStmt(new rHExp(new VarExp("v1"))),
+                                                                                        new CountDownStmt("cnt")))),
+                                                                                new CompStmt(new ForkStmt(new CompStmt(new wHStmt("v2", new ArithExp('*', new rHExp(new VarExp("v2")), new ValueExp(new IntValue(10)))),
+                                                                                        new CompStmt(new PrintStmt(new rHExp(new VarExp("v2"))),
+                                                                                                new CountDownStmt("cnt")))),
+                                                                                        new CompStmt(new ForkStmt(new CompStmt(new wHStmt("v3", new ArithExp('*', new rHExp(new VarExp("v3")), new ValueExp(new IntValue(10)))),
+                                                                                                new CompStmt(new PrintStmt(new rHExp(new VarExp("v3"))),
+                                                                                                        new CountDownStmt("cnt")))),
+                                                                                                new CompStmt(new AwaitStmt("cnt"),
+                                                                                                        new CompStmt(new PrintStmt(new ValueExp(new IntValue(100))),
+                                                                                                                new CompStmt(new CountDownStmt("cnt"),
+                                                                                                                        new PrintStmt(new ValueExp(new IntValue(100)))))))))))))))));
+        prgList.add(ex13);
+        return prgList;
 
     }
 }

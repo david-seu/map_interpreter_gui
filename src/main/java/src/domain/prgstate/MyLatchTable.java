@@ -1,16 +1,12 @@
 package src.domain.prgstate;
 
-import javafx.util.Pair;
 import src.domain.exception.EmptyStackException;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
-public class MySemaphore extends MyDictionary<Integer, Pair<Integer, Pair<ArrayList<Integer>, Integer>>>{
+public class MyLatchTable extends MyDictionary<Integer, Integer>{
     private Integer address = 1;
     private static final MyIStack<Integer> freeAddress = new MyStack<>();
 
-    public MySemaphore(){
+    public MyLatchTable(){
         super();
     }
 

@@ -61,16 +61,13 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symValueColumn;
 
     @FXML
-    private TableView<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTable;
+    private TableView<Pair<Integer, Integer>> latchTable;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreIndexColumn;
+    private TableColumn<Pair<Integer, Integer>, Integer> latchLocationColumn;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, ArrayList<Integer>> semaphoreListColumn;
-
-    @FXML
-    private TableColumn<Pair<Integer, Pair<ArrayList<Integer>, Integer>>, Integer> semaphoreValueColumn;
+    private TableColumn<Pair<Integer, Integer>, Integer> latchValueColumn;
 
     @FXML
     private TextField numberOfProgramStates;
@@ -84,9 +81,8 @@ public class MainController {
         valueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
         symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
-        semaphoreIndexColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
-        semaphoreListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.first));
-        semaphoreValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second.second).asObject());
+        latchLocationColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
+        latchValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second).asObject());
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -132,7 +128,19 @@ public class MainController {
         populateOutput();
         populateSymbolTable();
         populateExecutionStack();
-        populateSemaphoreTable();
+        populateLatchTable();
+    }
+
+    private void populateLatchTable() {
+        MyIDictionary<Integer, Integer> latchTable;
+        if (!controller.getPrgStates().isEmpty())
+            latchTable = controller.getPrgStates().get(0).getLatchTable();
+        else latchTable = new MyLatchTable();
+        List<Pair<Integer, Integer>> latchTableList = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : latchTable.getContent().entrySet())
+            latchTableList.add(new Pair<>(entry.getKey(), entry.getValue()));
+        this.latchTable.setItems(FXCollections.observableList(latchTableList));
+        this.latchTable.refresh();
     }
 
     private void populateHeap() {
@@ -197,17 +205,5 @@ public class MainController {
             }
         executionStackList.setItems(FXCollections.observableList(executionStackListAsString));
         executionStackList.refresh();
-    }
-
-    private void populateSemaphoreTable() {
-        PrgState state = getCurrentProgramState();
-        List<Pair<Integer, Pair<ArrayList<Integer>, Integer>>> semaphoreTableList = new ArrayList<>();
-
-        if (state != null)
-            for (Map.Entry<Integer, javafx.util.Pair<Integer, javafx.util.Pair<ArrayList<Integer>, Integer>>> entry : state.getSemaphoreTable().getContent().entrySet())
-                semaphoreTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getValue().getKey(), entry.getValue().getValue().getValue())));
-
-        semaphoreTable.setItems(FXCollections.observableList(semaphoreTableList));
-        semaphoreTable.refresh();
     }
 }
