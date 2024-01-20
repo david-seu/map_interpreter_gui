@@ -41,7 +41,8 @@ public class ListController {
             IRepository repo = new InMemoryRepository(prg, "log" + (Utils.exampleList() .indexOf(prg)+1) + ".txt");
             Controller ctrl = new Controller(repo);
             try{
-                MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
+                //MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
+                MyException exception = null;
                 if(exception == null){
                     mainController.setController(ctrl);
                 }

@@ -61,16 +61,16 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symValueColumn;
 
     @FXML
-    private TableView<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> semaphoreTable;
+    private TableView<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> barrierTable;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> semaphoreIndexColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> barrierLocationColumn;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, ArrayList<Integer>> semaphoreListColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, ArrayList<Integer>> barrierListColumn;
 
     @FXML
-    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> semaphoreValueColumn;
+    private TableColumn<Pair<Integer, Pair<Integer, ArrayList<Integer>>>, Integer> barrierValueColumn;
 
     @FXML
     private TextField numberOfProgramStates;
@@ -84,10 +84,9 @@ public class MainController {
         valueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
         symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
-        semaphoreIndexColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
-        semaphoreListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.second));
-        semaphoreValueColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().second.first).asObject());
-
+        barrierLocationColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
+        barrierValueColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.first));
+        barrierListColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second.second));
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -134,7 +133,19 @@ public class MainController {
         populateOutput();
         populateSymbolTable();
         populateExecutionStack();
-        populateSemaphoreTable();
+        populateBarrierTable();
+    }
+
+    private void populateBarrierTable() {
+        MyIDictionary<Integer, javafx.util.Pair<Integer, ArrayList<Integer>>> barrierTable;
+        if (!controller.getPrgStates().isEmpty())
+            barrierTable = controller.getPrgStates().get(0).getCyclicBarrierTable();
+        else barrierTable = new MyCyclicBarrierTable();
+        List<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> barrierTableList = new ArrayList<>();
+        for (Map.Entry<Integer, javafx.util.Pair<Integer, ArrayList<Integer>>> entry : barrierTable.getContent().entrySet())
+            barrierTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getKey(), entry.getValue().getValue())));
+        this.barrierTable.setItems(FXCollections.observableList(barrierTableList));
+        this.barrierTable.refresh();
     }
 
     private void populateHeap() {
@@ -199,17 +210,5 @@ public class MainController {
             }
         executionStackList.setItems(FXCollections.observableList(executionStackListAsString));
         executionStackList.refresh();
-    }
-
-    private void populateSemaphoreTable() {
-        PrgState state = getCurrentProgramState();
-        List<Pair<Integer, Pair<Integer, ArrayList<Integer>>>> semaphoreTableList = new ArrayList<>();
-
-        if (state != null)
-            for (Map.Entry<Integer, javafx.util.Pair<Integer, ArrayList<Integer>>> entry : state.getSemaphoreTable().getContent().entrySet())
-                semaphoreTableList.add(new Pair<>(entry.getKey(), new Pair<>(entry.getValue().getKey(),entry.getValue().getValue())));
-
-        semaphoreTable.setItems(FXCollections.observableList(semaphoreTableList));
-        semaphoreTable.refresh();
     }
 }

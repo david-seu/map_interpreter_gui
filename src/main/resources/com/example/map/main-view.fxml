@@ -29,11 +29,11 @@
       <Label text="Output" />
       <ListView fx:id="outputList" prefHeight="218.0" prefWidth="227.0" />
         <Label prefHeight="18.0" prefWidth="230.0" text="Semaphore table" />
-         <TableView fx:id="semaphoreTable" prefHeight="200.0" prefWidth="203.0">
+         <TableView fx:id="barrierTable" prefHeight="200.0" prefWidth="203.0">
            <columns>
-             <TableColumn fx:id="semaphoreIndexColumn" prefWidth="75.0" text="Location" />
-               <TableColumn fx:id="semaphoreValueColumn" prefWidth="75.0" text="Count" />
-               <TableColumn fx:id="semaphoreListColumn" prefWidth="75.0" text="List of IDs" />
+             <TableColumn fx:id="barrierLocationColumn" prefWidth="75.0" text="Location" />
+               <TableColumn fx:id="barrierValueColumn" prefWidth="75.0" text="Count" />
+               <TableColumn fx:id="barrierListColumn" prefWidth="75.0" text="List of IDs" />
            </columns>
          </TableView>
     </VBox>
