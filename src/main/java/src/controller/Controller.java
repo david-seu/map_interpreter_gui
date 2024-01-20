@@ -1,5 +1,6 @@
 package src.controller;
 
+import src.domain.exception.EmptyStackException;
 import src.domain.exception.MyException;
 import src.domain.prgstate.PrgState;
 import src.domain.value.RefValue;
@@ -66,9 +67,15 @@ public class Controller {
         Vector<PrgState> prgList = removeCompletedPrg(repo.getPrgList());
 
         while(!prgList.isEmpty()){
-            prgList.forEach(prg -> prg.getHeap().setContent(safeGarbageCollector(
-                    getAddrFromSymTable(prg.getSymTable().getContent().values()),
-                    prg.getHeap().getContent())));
+            prgList.forEach(prg -> {
+                try {
+                    prg.getHeap().setContent(safeGarbageCollector(
+                            getAddrFromSymTable(prg.getSymTables().top().getContent().values()),
+                            prg.getHeap().getContent()));
+                } catch (EmptyStackException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             oneStepForAllPrg(prgList);
             prgList = removeCompletedPrg(repo.getPrgList());
         }
@@ -81,9 +88,15 @@ public class Controller {
         executor = Executors.newFixedThreadPool(2);
         Vector<PrgState> prgList = removeCompletedPrg(repo.getPrgList());
 
-        prgList.forEach(prg -> prg.getHeap().setContent(safeGarbageCollector(
-                getAddrFromSymTable(prg.getSymTable().getContent().values()),
-                prg.getHeap().getContent())));
+        prgList.forEach(prg -> {
+            try {
+                prg.getHeap().setContent(safeGarbageCollector(
+                        getAddrFromSymTable(prg.getSymTables().top().getContent().values()),
+                        prg.getHeap().getContent()));
+            } catch (EmptyStackException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         oneStepForAllPrg(prgList);
 

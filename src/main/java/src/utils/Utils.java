@@ -1,5 +1,7 @@
 package src.utils;
 
+import javafx.util.Pair;
+import src.domain.exception.EmptyStackException;
 import src.domain.exception.MyException;
 import src.domain.exp.*;
 import src.domain.prgstate.*;
@@ -10,12 +12,12 @@ import src.domain.stmt.filestmt.ReadFileStmt;
 import src.domain.stmt.heap.NewStmt;
 import src.domain.stmt.heap.wHStmt;
 import src.domain.type.*;
-import src.domain.value.BoolValue;
 import src.domain.value.IntValue;
 import src.domain.value.StringValue;
 import src.domain.value.Value;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -27,13 +29,16 @@ public class Utils {
         return stmt.getFirst().toString() + "\n" + stmt.getSecond().toString();
     }
 
-    public static PrgState createPrgState(IStmt stmt) {
+    public static PrgState createPrgState(IStmt stmt) throws EmptyStackException {
         MyIStack<IStmt> stk1 = new MyStack<>();
         MyIDictionary<String, Value> symTable1 = new MyDictionary<>();
         MyIDictionary<Integer, Value> heap = new MyHeap();
         MyIList<Value> out1 = new MyList<>();
         MyIDictionary<StringValue, BufferedReader> fileTable1 = new MyDictionary<>();
-        return new PrgState(stk1, symTable1, out1, fileTable1, heap, stmt);
+        MyIStack<MyIDictionary<String, Value>> symTable = new MyStack<>();
+        symTable.push(symTable1);
+        MyIDictionary<String, Pair<ArrayList<Value>, IStmt>> procTable = new MyDictionary<>();
+        return new PrgState(stk1, symTable, out1, fileTable1, heap, procTable, stmt);
     }
 
     public static MyException typeChecker(IStmt stmt, Integer id) {
@@ -130,6 +135,49 @@ public class Utils {
                                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a"))))))),
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
+
+        // v=2;w=5;call sum(v*10,w);print(v);         fork(call product(v,w);                            fork(call sum(v,w)))
+        // create a comp stmt
+
+
+        ArrayList<Exp> params1 = new ArrayList<>();
+        params1.add(new ArithExp('*', new VarExp("v"), new ValueExp(new IntValue(10))));
+        params1.add(new VarExp("w"));
+        ArrayList<Exp> params2 = new ArrayList<>();
+        params2.add(new VarExp("v"));
+        params2.add(new VarExp("w"));
+
+
+        ArrayList<Value> values1 = new ArrayList<>();
+        values1.add(new StringValue("a"));
+        values1.add(new StringValue("b"));
+        IStmt sum = new CompStmt(new VarDeclStmt("v",new IntType()), new CompStmt(new AssignStmt("v", new ArithExp('+', new VarExp("a"), new VarExp("b"))), new PrintStmt(new VarExp("v"))));
+        IStmt product = new CompStmt(new VarDeclStmt("v",new IntType()), new CompStmt(new AssignStmt("v", new ArithExp('*', new VarExp("a"), new VarExp("b"))), new PrintStmt(new VarExp("v"))));
+
+
+        IStmt ex11 = new CompStmt(new AddProcStmt("sum", values1, sum),
+                new CompStmt(new AddProcStmt("product", values1, product),
+                new CompStmt(new VarDeclStmt("v", new IntType()),
+                new CompStmt(new VarDeclStmt("w", new IntType()),
+                        new CompStmt(new AssignStmt("v", new ValueExp(new IntValue(2))),
+                                new CompStmt(new AssignStmt("w", new ValueExp(new IntValue(5))),
+                                        new CompStmt(new CallStmt("sum", params1),
+                                                new CompStmt(new PrintStmt(new VarExp("v")),
+                                                        new ForkStmt(new CompStmt(new CallStmt("product", params2),
+                                                                new ForkStmt(new CallStmt("sum", params2))))))))))));
+        prgList.add(ex11);
+
+        //v=10; (fork(v=v-1;v=v-1;print(v)); sleep(10);print(v*10)
+        //create a comp stmt
+
+        IStmt ex12 = new CompStmt(new VarDeclStmt("v", new IntType()),
+                new CompStmt(new AssignStmt("v", new ValueExp(new IntValue(10))),
+                        new CompStmt(new ForkStmt(new CompStmt(new AssignStmt("v", new ArithExp('-', new VarExp("v"), new ValueExp(new IntValue(1)))),
+                                new CompStmt(new AssignStmt("v", new ArithExp('-', new VarExp("v"), new ValueExp(new IntValue(1)))),
+                                        new PrintStmt(new VarExp("v"))))),
+                                new CompStmt(new SleepStmt(new IntValue(10)),
+                                        new PrintStmt(new ArithExp('*', new VarExp("v"), new ValueExp(new IntValue(10))))))));
+        prgList.add(ex12);
         return prgList;
     }
 }

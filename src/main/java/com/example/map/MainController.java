@@ -1,11 +1,13 @@
 package com.example.map;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import src.controller.Controller;
+import src.domain.exception.EmptyStackException;
 import src.domain.exception.MyException;
 import src.domain.prgstate.*;
 import src.domain.stmt.IStmt;
@@ -56,7 +58,17 @@ public class MainController {
     private TableColumn<Pair<String, Value>, String> symVariableColumn;
 
     @FXML
-    private TableColumn<Pair<String, Value>, String> symValueColumn;
+    private TableColumn<Pair<String, Value>, Value> symValueColumn;
+
+
+    @FXML
+    private TableView<Pair<String, IStmt>> procTable;
+
+    @FXML
+    private TableColumn<Pair<String, IStmt>, String> procNameParamColumn;
+
+    @FXML
+    private TableColumn<Pair<String, IStmt>, IStmt> procBodyColumn;
 
     @FXML
     private TextField numberOfProgramStates;
@@ -68,8 +80,10 @@ public class MainController {
     public void initialize() {
         addressColumn.setCellValueFactory(p -> new SimpleIntegerProperty(p.getValue().first).asObject());
         valueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
+        procNameParamColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
+        procBodyColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second));
         symVariableColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().first));
-        symValueColumn.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().second.toString()));
+        symValueColumn.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue().second));
         oneStep.setOnAction(actionEvent -> {
             if (controller == null) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "The program was not selected", ButtonType.OK);
@@ -92,7 +106,13 @@ public class MainController {
                 controller = null;
             }
         });
-        programStateList.setOnMouseClicked(mouseEvent -> populate());
+        programStateList.setOnMouseClicked(mouseEvent -> {
+            try {
+                populate();
+            } catch (EmptyStackException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private PrgState getCurrentProgramState() {
@@ -104,18 +124,27 @@ public class MainController {
         return controller.getPrgStates().get(currentId);
     }
 
-    public void setController(Controller controller) {
+    public void setController(Controller controller) throws EmptyStackException {
         this.controller = controller;
         populate();
     }
 
-    private void populate() {
+    private void populate() throws EmptyStackException {
         populateHeap();
         populateProgramStateIdentifiers();
         populateFileTable();
         populateOutput();
         populateSymbolTable();
         populateExecutionStack();
+        populateProcTable();
+    }
+
+    private void populateProcTable() {
+        List<Pair<String, IStmt>> procTableList = new ArrayList<>();
+        for (Map.Entry<String, javafx.util.Pair<ArrayList<Value>, IStmt>> entry : controller.getPrgStates().get(0).getProcTable().getContent().entrySet())
+            procTableList.add(new Pair<>(entry.getKey()+" "+entry.getValue().getKey(), entry.getValue().getValue()));
+        procTable.setItems(FXCollections.observableList(procTableList));
+        procTable.refresh();
     }
 
     private void populateHeap() {
@@ -161,11 +190,11 @@ public class MainController {
         outputList.refresh();
     }
 
-    private void populateSymbolTable() {
+    private void populateSymbolTable() throws EmptyStackException {
         PrgState state = getCurrentProgramState();
         List<Pair<String, Value>> symbolTableList = new ArrayList<>();
         if (state != null)
-            for (Map.Entry<String, Value> entry : state.getSymTable().getContent().entrySet())
+            for (Map.Entry<String, Value> entry : state.getSymTables().top().getContent().entrySet())
                 symbolTableList.add(new Pair<>(entry.getKey(), entry.getValue()));
         symbolTable.setItems(FXCollections.observableList(symbolTableList));
         symbolTable.refresh();

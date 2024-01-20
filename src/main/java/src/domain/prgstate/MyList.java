@@ -10,6 +10,10 @@ public class MyList<T> implements MyIList<T>{
         this.list = new ArrayList<>();
     }
 
+    public MyList(ArrayList<T> list){
+        this.list = list;
+    }
+
     @Override
     public void add(T v) {
         list.add(v);

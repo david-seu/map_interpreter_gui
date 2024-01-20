@@ -1,8 +1,10 @@
 package src.repo;
 
+import javafx.util.Pair;
 import src.domain.exception.MyException;
 import src.domain.prgstate.MyIDictionary;
 import src.domain.prgstate.MyIList;
+import src.domain.prgstate.MyIStack;
 import src.domain.prgstate.PrgState;
 import src.domain.stmt.CompStmt;
 import src.domain.stmt.IStmt;
@@ -13,6 +15,7 @@ import src.utils.Utils;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -47,9 +50,11 @@ public class InMemoryRepository implements IRepository{
             PrintWriter logFile = new PrintWriter(new FileWriter(logFilePath, true));
             logFile.println("Id=" + prg.getId());
             logFile.println("SymTable_" + prg.getId() + ":");
-            MyIDictionary<String, Value> symTbl = prg.getSymTable();
-            for(String key : symTbl.getKeys()) {
-                logFile.println(key + "-->" + symTbl.lookup(key));
+            MyIStack<MyIDictionary<String, Value>> symTbl = prg.getSymTables();
+            for (MyIDictionary<String, Value> dict : symTbl.getStack()) {
+                for (String key : dict.getKeys()) {
+                    logFile.println(key + "-->" + dict.lookup(key));
+                }
             }
             logFile.println("------------------------------------------------------------");
             logFile.println("ExeStack_" + prg.getId() + ":");
@@ -83,6 +88,12 @@ public class InMemoryRepository implements IRepository{
             MyIDictionary<StringValue, BufferedReader> fileTable = prgList.get(0).getFileTable();
             for(StringValue key : fileTable.getKeys()) {
                 logFile.println(key);
+            }
+            logFile.println("------------------------------------------------------------");
+            logFile.println("ProcTable");
+            MyIDictionary<String, Pair<ArrayList<Value>, IStmt>> procTable = prgList.get(0).getProcTable();
+            for(String key : procTable.getKeys()) {
+                logFile.println(key + "-->" + procTable.lookup(key));
             }
             logFile.println("------------------------------------------------------------");
             logFile.println("Out");

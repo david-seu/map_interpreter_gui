@@ -8,6 +8,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Region;
 import src.controller.Controller;
+import src.domain.exception.EmptyStackException;
 import src.domain.exception.MyException;
 import src.domain.prgstate.PrgState;
 import src.domain.stmt.IStmt;
@@ -37,11 +38,19 @@ public class ListController {
             int index = statements.getSelectionModel().getSelectedIndex();
             if (index < 0)
                 return;
-            PrgState prg = Utils.createPrgState(Utils.exampleList().get(index));
+            PrgState prg = null;
+            try {
+                prg = Utils.createPrgState(Utils.exampleList().get(index));
+            } catch (EmptyStackException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert.showAndWait();
+            }
             IRepository repo = new InMemoryRepository(prg, "log" + (Utils.exampleList() .indexOf(prg)+1) + ".txt");
             Controller ctrl = new Controller(repo);
             try{
-                MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
+                //MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
+                MyException exception = null;
                 if(exception == null){
                     mainController.setController(ctrl);
                 }
