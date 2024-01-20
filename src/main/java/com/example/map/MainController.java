@@ -104,9 +104,10 @@ public class MainController {
             try {
                 controller.oneStepAll();
                 populate();
-            } catch (MyException | InterruptedException e) {
+            } catch (RuntimeException | MyException | InterruptedException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
                 alert.showAndWait();
+                controller = null;
             }
         });
         programStateList.setOnMouseClicked(mouseEvent -> populate());

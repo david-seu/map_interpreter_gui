@@ -7,10 +7,7 @@ import src.domain.value.Value;
 import src.repo.IRepository;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +37,7 @@ public class Controller {
         repo.logAllPrgStateExec();
 
         Vector<Callable<PrgState>> callList = prgList.stream()
-                .map((PrgState p) -> (Callable<PrgState>)(() -> {return p.oneStep();}))
+                .map((PrgState p) -> (Callable<PrgState>)(p::oneStep))
                 .collect(Collectors.toCollection(Vector::new));
 
         Vector<PrgState> newPrgList = executor.invokeAll(callList).stream()
@@ -48,11 +45,10 @@ public class Controller {
                     try {
                         return future.get();
                     } catch (InterruptedException | ExecutionException e) {
-                        System.out.println(e.getMessage());
+                        throw new RuntimeException(e);
                     }
-                    return null;
                 })
-                .filter(p -> p != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(Vector::new));
 
         prgList.addAll(newPrgList);
