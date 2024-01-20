@@ -5,7 +5,9 @@ import src.domain.exp.Exp;
 import src.domain.prgstate.MyIDictionary;
 import src.domain.prgstate.PrgState;
 import src.domain.type.BoolType;
+import src.domain.type.IntType;
 import src.domain.value.BoolValue;
+import src.domain.value.IntValue;
 import src.domain.value.Value;
 
 public class IfStmt implements IStmt {
@@ -37,7 +39,22 @@ public class IfStmt implements IStmt {
                 state.getStack().push(elseS);
             }
         } else {
+            if(val.getType().equals(new IntType()))
+            {
+                IntValue intVal = (IntValue) val;
+                if((Integer) intVal.getVal() != 0)
+                {
+                    state.getStack().push(thenS);
+                }
+                else
+                {
+                    state.getStack().push(elseS);
+                }
+            }
+            else
+            {
             throw new MyException("Conditional expression is not a boolean");
+            }
         }
         return null;
     }
@@ -45,7 +62,7 @@ public class IfStmt implements IStmt {
     @Override
     public MyIDictionary<String, src.domain.type.Type> typeCheck(MyIDictionary<String, src.domain.type.Type> typeEnv) throws MyException {
         src.domain.type.Type typexp=exp.typeCheck(typeEnv);
-        if (typexp.equals(new BoolType())) {
+        if (typexp.equals(new BoolType()) || typexp.equals(new IntType())) {
             thenS.typeCheck(typeEnv.duplicate());
             elseS.typeCheck(typeEnv.duplicate());
             return typeEnv;

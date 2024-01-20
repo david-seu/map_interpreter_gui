@@ -130,6 +130,18 @@ public class Utils {
                                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a"))))))),
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
+
+        //v1=2;v2=3; (if (v1) then print(MUL(v1,v2)) else print (v1))
+        //create a comp stmt with the following stmts
+
+        IStmt ex11 = new CompStmt(new VarDeclStmt("v1", new IntType()),
+                new CompStmt(new VarDeclStmt("v2", new IntType()),
+                        new CompStmt(new AssignStmt("v1", new ValueExp(new IntValue(2))),
+                                new CompStmt(new AssignStmt("v2", new ValueExp(new IntValue(3))),
+                                        new IfStmt(new VarExp("v1"),
+                                                new PrintStmt(new MulExp(new VarExp("v1"), new VarExp("v2"))),
+                                                new PrintStmt(new VarExp("v1")))))));
+        prgList.add(ex11);
         return prgList;
     }
 }
