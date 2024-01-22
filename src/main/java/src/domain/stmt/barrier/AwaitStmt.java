@@ -4,6 +4,7 @@ import src.domain.exception.MyException;
 import src.domain.prgstate.MyIDictionary;
 import src.domain.prgstate.PrgState;
 import src.domain.stmt.IStmt;
+import src.domain.type.IntType;
 import src.domain.type.Type;
 import src.domain.value.Value;
 
@@ -30,7 +31,7 @@ public class AwaitStmt implements IStmt {
             throw new MyException("Variable " + var + " not defined");
         }
 
-        if(!index.getType().equals(new src.domain.value.IntValue(0).getType())) {
+        if(!index.getType().equals(new IntType())) {
             throw new MyException("Variable " + var + " not of type int");
         }
 
@@ -57,7 +58,13 @@ public class AwaitStmt implements IStmt {
 
     @Override
     public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
-        return null;
+        Type typeVar = typeEnv.lookup(var);
+        if(typeVar.equals(new src.domain.type.IntType())) {
+            return typeEnv;
+        }
+        else {
+            throw new MyException("Variable " + var + " not of type int");
+        }
     }
 
     @Override

@@ -105,6 +105,7 @@ public class MainController {
                 populate();
             } catch (RuntimeException | MyException | InterruptedException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK);
+                System.out.println(e.getMessage());
                 alert.showAndWait();
                 controller = null;
             }

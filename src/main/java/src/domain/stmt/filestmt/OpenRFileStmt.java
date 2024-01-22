@@ -11,10 +11,15 @@ import src.domain.value.Value;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class OpenRFileStmt implements IStmt {
 
     private final Exp exp;
+
+    private static final Lock lock = new ReentrantLock();
+
 
     public OpenRFileStmt(Exp exp) {
         this.exp = exp;
@@ -27,6 +32,7 @@ public class OpenRFileStmt implements IStmt {
 
     @Override
     public PrgState execute(PrgState state) throws MyException {
+        lock.lock();
         MyIDictionary<String, Value> symTable = state.getSymTable();
         MyIDictionary<Integer, Value> heap = state.getHeap();
         MyIDictionary<StringValue, BufferedReader> fileTable = state.getFileTable();
@@ -43,7 +49,9 @@ public class OpenRFileStmt implements IStmt {
         catch (Exception e){
             throw new MyException(e.toString());
         }
+        lock.unlock();
         return null;
+
     }
 
     @Override

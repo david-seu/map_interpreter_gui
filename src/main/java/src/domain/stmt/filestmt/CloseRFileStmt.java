@@ -10,10 +10,14 @@ import src.domain.value.StringValue;
 import src.domain.value.Value;
 
 import java.io.BufferedReader;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CloseRFileStmt implements IStmt {
 
     private final Exp exp;
+
+    private static final Lock lock = new ReentrantLock();
 
     public CloseRFileStmt(Exp exp) {
         this.exp = exp;
@@ -25,6 +29,7 @@ public class CloseRFileStmt implements IStmt {
     }
     @Override
     public PrgState execute(PrgState state) throws MyException {
+        lock.lock();
         MyIDictionary<String, Value> symTbl = state.getSymTable();
         MyIDictionary<Integer, Value> heap = state.getHeap();
         MyIDictionary<StringValue, BufferedReader> fileTbl = state.getFileTable();
@@ -42,7 +47,7 @@ public class CloseRFileStmt implements IStmt {
         catch (Exception e){
             throw new MyException(e.toString());
         }
-
+        lock.unlock();
         return null;
     }
 

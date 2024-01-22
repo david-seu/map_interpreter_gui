@@ -135,43 +135,108 @@ public class Utils {
                                                 new CompStmt(new PrintStmt(new VarExp("v")), new PrintStmt(new rHExp(new VarExp("a")))))))));
         prgList.add(ex10);
 
-        //int a; int b; int c; a=1;b=2;c=5; (switch(a*10)   (case (b*c) : print(a);print(b))  (case (10) : print(100);print(200))  (default : print(300))); print(300)
-        // create a compound statement for this
+        //int v; int x; int y; v=0;
+        //(repeat (fork(print(v);v=v-1);v=v+1) until v==3);
+        //x=1;nop;y=3;nop;
+        //print(v*10)
+        // create a comp stmt
 
-        IStmt ex12 = new CompStmt(new VarDeclStmt("a", new IntType()),
-                new CompStmt(new VarDeclStmt("b", new IntType()),
-                        new CompStmt(new VarDeclStmt("c", new IntType()),
-                                new CompStmt(new AssignStmt("a", new ValueExp(new IntValue(1))),
-                                        new CompStmt(new AssignStmt("b", new ValueExp(new IntValue(2))),
-                                                new CompStmt(new AssignStmt("c", new ValueExp(new IntValue(5))),
-                                                        new CompStmt(new SwitchStmt(new ArithExp('*', new VarExp("a"), new ValueExp(new IntValue(10))),
-                                                                new ArithExp('*', new VarExp("b"), new VarExp("c")),
-                                                                new ValueExp(new IntValue(10)),
-                                                                new CompStmt(new PrintStmt(new VarExp("a")), new PrintStmt(new VarExp("b"))),
-                                                                new CompStmt(new PrintStmt(new ValueExp(new IntValue(100))), new PrintStmt(new ValueExp(new IntValue(200)))),
-                                                                new PrintStmt(new ValueExp(new IntValue(300)))),
-                                                                new PrintStmt(new ValueExp(new IntValue(300))))))))));
-        prgList.add(ex12);
+        IStmt ex11 = new CompStmt(
+                new VarDeclStmt("v", new IntType()),
+                new CompStmt(
+                        new VarDeclStmt("x", new IntType()),
+                        new CompStmt(
+                                new VarDeclStmt("y", new IntType()),
+                                new CompStmt(
+                                        new AssignStmt("v", new ValueExp(new IntValue(0))),
+                                        new CompStmt(
+                                                new RepeatUntilStmt(
+                                                        new CompStmt(
+                                                                new ForkStmt(
+                                                                        new CompStmt(
+                                                                                new PrintStmt(new VarExp("v")),
+                                                                                new AssignStmt("v", new ArithExp('-', new VarExp("v"), new ValueExp(new IntValue(1))))
+                                                                        )
+                                                                ),
+                                                                new AssignStmt("v", new ArithExp('+', new VarExp("v"), new ValueExp(new IntValue(1))))
+                                                        ),
+                                                        new BooleanExp(new VarExp("v"), new ValueExp(new IntValue(3)), "==")
+                                                ),
+                                                new CompStmt(
+                                                        new AssignStmt("x", new ValueExp(new IntValue(1))),
+                                                        new CompStmt(
+                                                                new NoPStmt(),
+                                                                new CompStmt(
+                                                                        new AssignStmt("y", new ValueExp(new IntValue(3))),
+                                                                        new CompStmt(
+                                                                                new NoPStmt(),
+                                                                                new PrintStmt(new ArithExp('*', new VarExp("v"), new ValueExp(new IntValue(10))))
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+        );
 
-        //new(v1,2);new(v2,3);new(v3,4); newBarrier(cnt,rH(v2)); fork(await(cnt);wh(v1,rh(v1)*10)); print(rh(v1)));
-        //fork(await(cnt); wh(v2,rh(v2)*10)); wh(v2,rh(v2)* 10)); print(rh(v2)));
-        //await(cnt); print(rH(v3))
-        //create a COmp stmt
-        IStmt ex13 = new CompStmt(new VarDeclStmt("v1", new RefType(new IntType())),
-                new CompStmt(new VarDeclStmt("v2", new RefType(new IntType())),
-                        new CompStmt(new VarDeclStmt("v3", new RefType(new IntType())),
-                                new CompStmt(new NewStmt("v1", new ValueExp(new IntValue(2))),
-                                        new CompStmt(new NewStmt("v2", new ValueExp(new IntValue(3))),
-                                                new CompStmt(new NewStmt("v3", new ValueExp(new IntValue(4))),
-                                                        new CompStmt(new NewBarrierStmt("cnt", new rHExp(new VarExp("v2"))),
-                                                                new CompStmt(new ForkStmt(new CompStmt(new AwaitStmt("cnt"),
-                                                                        new CompStmt(new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
-                                                                                new PrintStmt(new rHExp(new VarExp("v1")))))),
-                                                                        new CompStmt(new ForkStmt(new CompStmt(new AwaitStmt("cnt"),
-                                                                                new CompStmt(new wHStmt("v2", new ArithExp('*', new rHExp(new VarExp("v2")), new ValueExp(new IntValue(10)))),
-                                                                                        new CompStmt(new wHStmt("v2", new ArithExp('*', new rHExp(new VarExp("v2")), new ValueExp(new IntValue(10)))),
-                                                                                                        new PrintStmt(new rHExp(new VarExp("v2"))))))),
-                                                                                new CompStmt(new AwaitStmt("cnt"), new PrintStmt(new rHExp(new VarExp("v3")))))))))))));
+        prgList.add(ex11);
+
+        IStmt ex13 = new CompStmt(
+                new VarDeclStmt("v1", new RefType(new IntType())),
+                new CompStmt(
+                        new VarDeclStmt("v2", new RefType(new IntType())),
+                        new CompStmt(
+                                new VarDeclStmt("v3", new RefType(new IntType())),
+                                new CompStmt(
+                                        new VarDeclStmt("cnt", new IntType()),
+                                        new CompStmt(
+                                                new NewStmt("v1", new ValueExp(new IntValue(2))),
+                                                new CompStmt(
+                                                        new NewStmt("v2", new ValueExp(new IntValue(3))),
+                                                        new CompStmt(
+                                                                new NewStmt("v3", new ValueExp(new IntValue(4))),
+                                                                new CompStmt(
+                                                                        new NewBarrierStmt("cnt", new rHExp(new VarExp("v2"))),
+                                                                        new CompStmt(
+                                                                                new ForkStmt(
+                                                                                        new CompStmt(
+                                                                                                new AwaitStmt("cnt"),
+                                                                                                new CompStmt(
+                                                                                                        new wHStmt("v1", new ArithExp('*', new rHExp(new VarExp("v1")), new ValueExp(new IntValue(10)))),
+                                                                                                        new PrintStmt(new rHExp(new VarExp("v1")))
+                                                                                                )
+                                                                                        )
+                                                                                ),
+                                                                                new CompStmt(
+                                                                                        new ForkStmt(
+                                                                                                new CompStmt(
+                                                                                                        new AwaitStmt("cnt"),
+                                                                                                        new CompStmt(
+                                                                                                                new wHStmt("v2", new ArithExp('*', new rHExp(new VarExp("v2")), new ValueExp(new IntValue(10)))),
+                                                                                                                new CompStmt(
+                                                                                                                        new wHStmt("v2", new ArithExp('*', new rHExp(new VarExp("v2")), new ValueExp(new IntValue(10)))),
+                                                                                                                        new PrintStmt(new rHExp(new VarExp("v2")))
+                                                                                                                )
+                                                                                                        )
+                                                                                                )
+                                                                                        ),
+                                                                                        new CompStmt(
+                                                                                                new AwaitStmt("cnt"),
+                                                                                                new PrintStmt(new rHExp(new VarExp("v3")))
+                                                                                        )
+                                                                                )
+                                                                        )
+                                                                )
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+        );
+
         prgList.add(ex13);
         return prgList;
 

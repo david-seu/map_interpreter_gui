@@ -7,6 +7,7 @@ import src.domain.prgstate.MyCyclicBarrierTable;
 import src.domain.prgstate.MyIDictionary;
 import src.domain.prgstate.PrgState;
 import src.domain.stmt.IStmt;
+import src.domain.type.IntType;
 import src.domain.type.Type;
 import src.domain.value.IntValue;
 import src.domain.value.Value;
@@ -34,20 +35,20 @@ public class NewBarrierStmt implements IStmt {
 
         Value number = exp.eval(state.getSymTable(), state.getHeap());
 
-        if(number.getType().equals(new IntValue(0).getType())) {
+        if(number.getType().equals(new IntType())) {
             int numberInt = (int) number.getVal();
             MyIDictionary<Integer, Pair<Integer, ArrayList<Integer>>> cyclicBarrierTable = state.getCyclicBarrierTable();
             int newFreeLocation = ((MyCyclicBarrierTable) cyclicBarrierTable).getFreeAddress();
             cyclicBarrierTable.add(newFreeLocation, new Pair<>(numberInt, new ArrayList<>()));
-            if(state.getSymTable().isDefined(var)) {
+            if(state.getSymTable().isDefined(var) && state.getSymTable().lookup(var).getType().equals(new IntType())) {
                 state.getSymTable().update(var, new IntValue(newFreeLocation));
             }
             else {
-                state.getSymTable().add(var, new IntValue(newFreeLocation));
+                throw new MyException("Variable " + var + " is not defined");
             }
         }
         else {
-            throw new MyException("Expression " + exp.toString() + " is not of type int");
+            throw new MyException("Expression " + exp + " is not of type int");
         }
 
 
@@ -57,7 +58,19 @@ public class NewBarrierStmt implements IStmt {
 
     @Override
     public MyIDictionary<String, Type> typeCheck(MyIDictionary<String, Type> typeEnv) throws MyException {
-        return null;
+        Type typeVar = typeEnv.lookup(var);
+        Type typeExp = exp.typeCheck(typeEnv);
+        if(typeVar.equals(new IntType())) {
+            if(typeExp.equals(new IntType())) {
+                return typeEnv;
+            }
+            else {
+                throw new MyException("Expression " + exp + " is not of type int");
+            }
+        }
+        else {
+            throw new MyException("Variable " + var + " is not of type int");
+        }
     }
 
     @Override

@@ -16,7 +16,7 @@ public class NoPStmt implements IStmt {
 
     @Override
     public String toString() {
-        return "";
+        return "nop";
     }
 
     @Override

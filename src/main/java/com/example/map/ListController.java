@@ -11,7 +11,6 @@ import src.controller.Controller;
 import src.domain.exception.MyException;
 import src.domain.prgstate.PrgState;
 import src.domain.stmt.IStmt;
-import src.domain.stmt.IfStmt;
 import src.repo.IRepository;
 import src.repo.InMemoryRepository;
 import src.utils.Utils;
@@ -19,6 +18,8 @@ import src.utils.Utils;
 
 public class ListController {
     private MainController mainController;
+
+    private static int counter = 0;
 
     public void setProgramController(MainController mainController) {
         this.mainController = mainController;
@@ -38,11 +39,10 @@ public class ListController {
             if (index < 0)
                 return;
             PrgState prg = Utils.createPrgState(Utils.exampleList().get(index));
-            IRepository repo = new InMemoryRepository(prg, "log" + (Utils.exampleList() .indexOf(prg)+1) + ".txt");
+            IRepository repo = new InMemoryRepository(prg, "log" + counter++ + ".txt");
             Controller ctrl = new Controller(repo);
             try{
-                //MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
-                MyException exception = null;
+                MyException exception = Utils.typeChecker(Utils.exampleList().get(index), index+1);
                 if(exception == null){
                     mainController.setController(ctrl);
                 }

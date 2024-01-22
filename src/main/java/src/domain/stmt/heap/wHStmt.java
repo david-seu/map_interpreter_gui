@@ -8,10 +8,15 @@ import src.domain.type.RefType;
 import src.domain.value.RefValue;
 import src.domain.value.Value;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class wHStmt implements IStmt{
 
     String varName;
     Exp exp;
+
+    private final static Lock lock = new ReentrantLock();
 
     public wHStmt(String varName, Exp exp){
         this.varName = varName;
@@ -20,6 +25,7 @@ public class wHStmt implements IStmt{
 
     @Override
     public PrgState execute(PrgState state) throws MyException {
+        lock.lock();
         MyIDictionary<String, Value> symTable = state.getSymTable();
         MyIDictionary<Integer, Value> heap = state.getHeap();
         if(!symTable.isDefined(varName))
@@ -36,6 +42,7 @@ public class wHStmt implements IStmt{
             throw new MyException("Types do not match");
         }
         heap.update((Integer) val.getVal(), expVal);
+        lock.unlock();
         return null;
     }
 

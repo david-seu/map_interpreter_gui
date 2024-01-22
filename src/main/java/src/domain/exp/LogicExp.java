@@ -17,23 +17,32 @@ public class LogicExp implements Exp{
         this.e2 = e2;
         if(c=='&') op=1;
         if(c=='|') op=2;
+        if(c=='!') op=3;
     }
 
     public Value eval(MyIDictionary<String, Value> symTbl, MyIDictionary<Integer, Value> heap) throws MyException{
         Value v1,v2;
         v1 = e1.eval(symTbl, heap);
         if(v1.getType().equals(new BoolType())){
-            v2 = e2.eval(symTbl, heap);
-            if(v2.getType().equals(new BoolType())){
-                BoolValue b1 = (BoolValue)v1;
-                BoolValue b2 = (BoolValue)v2;
-                boolean n1,n2;
-                n1 = (boolean) b1.getVal();
-                n2 = (boolean) b2.getVal();
-                if(op==1) return new BoolValue(n1&&n2);
-                if(op==2) return new BoolValue(n1||n2);
+            if(e2 != null) {
+                v2 = e2.eval(symTbl, heap);
+                if (v2.getType().equals(new BoolType())) {
+                    BoolValue b1 = (BoolValue) v1;
+                    BoolValue b2 = (BoolValue) v2;
+                    boolean n1, n2;
+                    n1 = (boolean) b1.getVal();
+                    n2 = (boolean) b2.getVal();
+                    if (op == 1) return new BoolValue(n1 && n2);
+                    if (op == 2) return new BoolValue(n1 || n2);
+                }
+                else throw new MyException("second operand is not a boolean");
             }
-            else throw new MyException("second operand is not a boolean");
+            else {
+                BoolValue b1 = (BoolValue) v1;
+                boolean n1;
+                n1 = (boolean) b1.getVal();
+                if(op==3) return new BoolValue(!n1);
+            }
         }
         else throw new MyException("first operand is not a boolean");
         return null;
@@ -43,6 +52,7 @@ public class LogicExp implements Exp{
         String s = "";
         if(op==1) s = e1.toString() + "&&" + e2.toString();
         if(op==2) s = e1.toString() + "||" + e2.toString();
+        if(op==3) s = "!" + e1.toString();
         return s;
     }
 

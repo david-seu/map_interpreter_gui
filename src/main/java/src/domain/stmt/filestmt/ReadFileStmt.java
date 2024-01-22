@@ -13,11 +13,15 @@ import src.domain.value.Value;
 
 import java.io.BufferedReader;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ReadFileStmt implements IStmt {
 
     private final Exp exp;
     private final String var_name;
+
+    private static final Lock lock = new ReentrantLock();
 
     public ReadFileStmt(Exp exp, String var_name) {
         this.exp = exp;
@@ -30,6 +34,7 @@ public class ReadFileStmt implements IStmt {
     }
     @Override
     public PrgState execute(PrgState state) throws MyException {
+        lock.lock();
         MyIDictionary<String, Value> symTbl = state.getSymTable();
         MyIDictionary<Integer, Value> heap = state.getHeap();
         MyIDictionary<StringValue,BufferedReader> fileTbl = state.getFileTable();
@@ -54,6 +59,7 @@ public class ReadFileStmt implements IStmt {
         catch (Exception e){
             throw new MyException(e.toString());
         }
+        lock.unlock();
         return null;
     }
 

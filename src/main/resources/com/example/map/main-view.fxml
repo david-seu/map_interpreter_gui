@@ -28,7 +28,7 @@
     <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="418.0" prefWidth="230.0">
       <Label text="Output" />
       <ListView fx:id="outputList" prefHeight="218.0" prefWidth="227.0" />
-        <Label prefHeight="18.0" prefWidth="230.0" text="Semaphore table" />
+        <Label prefHeight="18.0" prefWidth="230.0" text="Barrier table" />
          <TableView fx:id="barrierTable" prefHeight="200.0" prefWidth="203.0">
            <columns>
              <TableColumn fx:id="barrierLocationColumn" prefWidth="75.0" text="Location" />

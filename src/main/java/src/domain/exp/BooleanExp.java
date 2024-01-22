@@ -2,6 +2,7 @@ package src.domain.exp;
 
 import src.domain.exception.MyException;
 import src.domain.prgstate.MyIDictionary;
+import src.domain.type.BoolType;
 import src.domain.type.IntType;
 import src.domain.type.Type;
 import src.domain.value.BoolValue;
@@ -70,7 +71,7 @@ public class BooleanExp implements Exp {
         type1 = exp_left.typeCheck(typeEnv);
         type2 = exp_right.typeCheck(typeEnv);
         if(type1.equals(new IntType()) && type2.equals(new IntType()))
-            return new IntType();
+            return new BoolType();
         else throw new MyException("The two operands have different types.");
     }
 }
